@@ -50,23 +50,16 @@ def profile(request, username):
     paginator = Paginator(author.posts.all(), 10)  # type: ignore
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
     following = (
         request.user.is_authenticated
         and author.following.filter(user=request.user)
     )
-    # if request.user.is_authenticated and (
-    #     author.following.filter(user=request.user)  # type: ignore
-    # ):
-    #     following = True
-    # else:
-    #     following = False
-
     context = {
         'author': author,
         'following': following,
         'page_obj': page_obj,
     }
+
     return render(request, 'posts/profile.html', context)
 
 
@@ -82,7 +75,6 @@ def post_detail(request, post_id):
     comments = Comment.objects.filter(
         post=post_id
     ).select_related('author')
-
     context = {
         'form': form,
         'count': count,
@@ -90,6 +82,7 @@ def post_detail(request, post_id):
         'post': post,
         'comments': comments
     }
+
     return render(request, 'posts/post_detail.html', context)
 
 
@@ -105,6 +98,7 @@ def post_create(request):
             post = form.save(commit=False)
             post.author = request.user
             post.save()
+
             return redirect('post:profile', request.user)
 
     else:
@@ -114,6 +108,7 @@ def post_create(request):
         'form': form,
         'is_edit': False
     }
+
     return render(request, template, context)
 
 
