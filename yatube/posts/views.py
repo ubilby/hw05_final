@@ -51,12 +51,16 @@ def profile(request, username):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    if request.user.is_authenticated and (
-        author.following.filter(user=request.user)  # type: ignore
-    ):
-        following = True
-    else:
-        following = False
+    following = (
+        request.user.is_authenticated
+        and author.following.filter(user=request.user)
+    )
+    # if request.user.is_authenticated and (
+    #     author.following.filter(user=request.user)  # type: ignore
+    # ):
+    #     following = True
+    # else:
+    #     following = False
 
     context = {
         'author': author,
@@ -67,18 +71,11 @@ def profile(request, username):
 
 
 def post_detail(request, post_id):
-    # на будущее хочу использовать здесь эту конструкцию
-    # или похожую, чтобы остался один запрос к базе
-    # comments = get_list_or_404(
-    #     Comment.objects.select_related(),
-    #     post_id=post_id
-    # )
     post = get_object_or_404(
         Post.objects.select_related('group', 'author'),
         id=post_id
     )
     form = CommentForm(request.POST)
-    text = post.text[0:30]
     count = Post.objects.filter(
         author_id=post.author.id  # type: ignore
     ).count()
@@ -89,7 +86,7 @@ def post_detail(request, post_id):
     context = {
         'form': form,
         'count': count,
-        'text': text,
+        'text': post.text[0:30],
         'post': post,
         'comments': comments
     }
@@ -162,8 +159,6 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    # информация о текущем пользователе доступна в переменной request.user
-    # ...
     posts = Post.objects.filter(author__following__user=request.user)
     paginator = Paginator(posts, 10)
     page_number = request.GET.get('page')
@@ -175,15 +170,13 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
-    # Подписаться на автора
     user = get_object_or_404(User, id=request.user.id)
     author = get_object_or_404(User, username=username)
 
     if (
         not (user == author)
-        and not Follow.objects.filter(user=user, author=author).count()
     ):
-        Follow.objects.create(
+        Follow.objects.get_or_create(
             user=user,
             author=author
         )
@@ -192,7 +185,6 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    # Дизлайк, отписка
     follow = get_object_or_404(
         Follow,
         author=get_object_or_404(User, username=username),

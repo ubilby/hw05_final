@@ -58,6 +58,7 @@ class DynamicURLTests(TestCase):
             f'/posts/{self.post.id}/edit/': HTTPStatus.FOUND,  # type: ignore
             '/create/': HTTPStatus.FOUND,
             '/unknown/': HTTPStatus.NOT_FOUND,
+            '/follow/': HTTPStatus.FOUND
         }
 
         for page, code in guest_client_pages.items():
@@ -74,7 +75,7 @@ class DynamicURLTests(TestCase):
 
     def test_post_page_for_not_author(self):
         self.client.force_login(self.not_author)
-        """закружается страница редактирования поста не для автора"""
+        """не закружается страница редактирования поста не для автора"""
         response = self.client.get(
             f'/posts/{self.post.id}/edit/'  # type: ignore
         )
@@ -96,9 +97,11 @@ class DynamicURLTests(TestCase):
             f'/posts/{id}/': 'posts/post_detail.html',
             f'/posts/{id}/edit/': 'posts/create_post.html',
             '/create/': 'posts/create_post.html',
+            '/follow/': 'posts/follow.html',
         }
 
         for url, template in templates_url_names.items():
             with self.subTest(url=url):
                 response = self.client.get(url)
                 self.assertTemplateUsed(response, template)
+                self.assertEqual(response.status_code, HTTPStatus.OK)
