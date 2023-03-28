@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
+
 User = get_user_model()
 
 
@@ -105,4 +106,7 @@ class Follow(models.Model):
     )
 
     class Meta:
-        unique_together = ['user', 'author']
+        models.UniqueConstraint(
+            fields=['author', 'user'],
+            name='unique_following'
+        )

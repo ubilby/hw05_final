@@ -149,6 +149,7 @@ def add_comment(request, post_id):
         comment.author = request.user
         comment.post = get_object_or_404(Post, id=post_id)
         comment.save()
+
     return redirect('posts:post_detail', post_id=post_id)
 
 
@@ -158,8 +159,8 @@ def follow_index(request):
     paginator = Paginator(posts, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
     context = {'page_obj': page_obj}
+
     return render(request, 'posts/follow.html', context)
 
 
@@ -168,13 +169,12 @@ def profile_follow(request, username):
     user = get_object_or_404(User, id=request.user.id)
     author = get_object_or_404(User, username=username)
 
-    if (
-        not (user == author)
-    ):
+    if not (user == author):
         Follow.objects.get_or_create(
             user=user,
             author=author
         )
+
     return redirect('post:profile', username=username)
 
 
@@ -186,4 +186,5 @@ def profile_unfollow(request, username):
         user=request.user
     )
     follow.delete()
+
     return redirect('post:profile', username=username)
