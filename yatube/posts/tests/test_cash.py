@@ -22,19 +22,19 @@ class CashTest(TestCase):
 
     def setUp(self):
         self.client.force_login(self.author)
-        cache.clear
+        cache.clear()
 
     def test_cache_index_page_by_adding_post(self):
         response = self.client.get(reverse('posts:index'))
         posts_at_db_before = Post.objects.all().count()
         posts_at_index_before = len(response.context['page_obj'])
-        self.client.post(
-            reverse('post:post_create'),
-            {
-                'text': 'test1',
-            }
+        Post.objects.create(
+            author=self.author,
+            text='test1',
         )
         posts_at_db_after = Post.objects.all().count()
-        posts_at_index_after = len(response.context['page_obj'])
+        response = self.client.get(reverse('posts:index'))
+        posts_at_index_after = str(response.content).count('/posts/')
         self.assertEqual(posts_at_db_before, posts_at_db_after - 1)
         self.assertEqual(posts_at_index_before, posts_at_index_after)
+        print(len(response.context['page_obj']))

@@ -6,13 +6,11 @@ from django.shortcuts import (
     redirect,
     render
 )
-from django.views.decorators.cache import cache_page
 
 from posts.forms import CommentForm, PostForm
 from posts.models import Comment, Follow, Group, Post, User
 
 
-@cache_page(20, key_prefix='index_page')
 def index(request) -> HttpResponse:
     template = 'posts/index.html'
     posts = Post.objects.all()
