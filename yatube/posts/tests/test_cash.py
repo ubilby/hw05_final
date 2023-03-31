@@ -37,4 +37,3 @@ class CashTest(TestCase):
         posts_at_index_after = str(response.content).count('/posts/')
         self.assertEqual(posts_at_db_before, posts_at_db_after - 1)
         self.assertEqual(posts_at_index_before, posts_at_index_after)
-        print(len(response.context['page_obj']))
