@@ -6,7 +6,7 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 
 SECRET_KEY = '^=pq5lpk1pwnhinw(t2^dy8m%q8p61a2b(8^zi0@%_&&9mfd%g'
 
-DEBUG = False
+DEBUG = True
 
 THUMBNAIL_DEBUG = True
 
